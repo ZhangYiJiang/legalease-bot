@@ -16,22 +16,22 @@
 # |                                                                         |
 # ---------------------------------------------------------------------------
 #
+
 triggers:
   - type: meya.keyword
     properties:
         keyword: start
-name: welcome  # <-- this is the name of flow. It must be unique for your bot
 states:  # <-- a `flow` is a collection of states that run in order
     first:
         component: meya.text  # <-- this is a simple built-in component
         properties:
-            text: Hi! I'm the WelcomeBot. # <-- how the bot responds
+            text: Hi! I'm the Legalease Bot. # <-- how the bot responds
         delay:
             relative: 2  # <-- put a 2 second delay
     second:
         component: meya.text
         properties:
-            text: Let's start with a quick tour of the platform...
+            text: Let's start with a quick tour of the what I can do...
         delay:
             relative: 2  # <-- another 2 second delay
     third:
@@ -40,11 +40,6 @@ states:  # <-- a `flow` is a collection of states that run in order
             complete: done
         delay:
             relative: 5
-    done:
-        component: meya.text
-        properties:
-            text: ...one more thing. Try saying "weather", "joke" or "gif".
-        return: true
 #
 # Meya bot flows are written in YAML: https://en.wikipedia.org/wiki/YAML
 # Read the docs: http://docs.meya.ai/
@@ -65,4 +60,3 @@ states:  # <-- a `flow` is a collection of states that run in order
 # Good Luck!
 #
 # - The Meya Team
-

@@ -4,7 +4,6 @@ triggers:
   - type: meya.keyword
     properties:
         keyword: tutorial
-name: tutorial
 states:
     check_name:
         component: meya.conditional_exists

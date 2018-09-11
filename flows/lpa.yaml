@@ -1,0 +1,311 @@
+triggers:
+  - type: meya.keyword
+    properties:
+        ignorecase: true
+        keyword: lpa
+states:
+    validated_check:
+        component: meya.conditional_exists
+        properties:
+            scope: user
+            key: lpa_eligible
+        transitions:
+            exists: intro_skip
+            notexists: intro_1
+
+    intro_skip:
+        component: meya.text_suggestions
+        properties:
+            text: >
+                It looks like this isn't your first time filling this form with
+                me. Do you need me to go over what a Lasting Power of Attorney
+                is?
+            suggestions:
+                - "Yes"
+                - "No"
+        transitions:
+            "Yes": intro_1
+            "No": ocr_choice
+
+    intro_1:
+        component: meya.text
+        properties:
+            text: >
+                The LPA allows you (the *donar*) to voluntarily appoint
+                one or more persons (*donee(s)*) to make decisions and act
+                on your behalf should you lose mental capacity one day.
+        delay:
+            relative: 4
+
+    intro_2:
+        component: meya.text
+        properties:
+            text: >
+                Donees can be appointed to act in the two broad areas -
+                personal welfare and property & affairs matters.
+        delay:
+            relative: 3
+
+    intro_3:
+        component: meya.text
+        properties:
+            text: >
+                You'll need your NRIC or passport and your donee's NRIC or 
+                passport.
+        delay:
+            relative: 3
+
+    intro_4:
+        component: meya.text_suggestions
+        properties:
+            text: >
+                I can help you draft out the form by filling in the blanks for
+                you, but you must get a legal practioner to help you certify it.
+
+                Don't worry - I'll help you find one once we finish the form.
+            suggestions:
+                - Got it
+
+    intro_check:
+        component: meya.conditional_exists
+        properties:
+            scope: user
+            key: lpa_eligible
+        transitions:
+            exists: ocr_choice
+            notexists: age_input
+
+    age_input:
+        component: meya.input_string
+        properties:
+            text: >
+                Great! First I need to check your age.
+                Please enter your birthday.
+            output: raw_birthday
+            scope: user
+
+    age_check:
+        component: age_check
+        transitions:
+            y: backruptcy_check
+            n: age_check_fail
+            parse_fail: age_retry
+
+    age_retry:
+        component: meya.input_string
+        properties:
+            text: "Sorry, I don't understand what you've entered. Please try again"
+            output: raw_birthday
+            scope: flow
+        transitions:
+            next: age_check
+
+    age_check_fail:
+        component: meya.text
+        properties:
+            text: "Sorry, you must be 21 or older to sign an LPA"
+        return: true
+
+    backruptcy_check:
+        component: meya.text_buttons
+        properties:
+            text: "Cool! Also, are you an undischarged bankrupt?"
+            mode: quick_reply
+            buttons:
+                - text: "Yes"
+                  action: y
+                - text: "No"
+                  action: n
+        transitions:
+            y: backruptcy_check_fail
+            n: user_passed_validation
+
+    backruptcy_check_fail:
+        component: meya.text
+        properties:
+            text: "Sorry! Undischarged bankrupts cannot draft LPAs"
+        return: true
+    
+    user_passed_validation:
+        component: meya.set
+        properties:
+            key: lpa_eligible
+            value: true
+            scope: user
+
+    ocr_choice:
+        component: meya.text_buttons
+        properties:
+            text: >
+                Okay, now I need some personal information from you. If you
+                are using an NRIC, you can use your phone to take a picture of
+                your NRIC and I'll help you fill the form automatically.
+
+                If you're using a passport, or don't want to use your phone,
+                you can also key in the information manually.
+            buttons:
+                - text: Use my camera
+                  action: ocr
+                - text: Fill in manually
+                  action: keyboard
+        transitions:
+            ocr: ic_ocr_input_front
+            keyboard: ic_keyboard_start
+
+    ic_ocr_input_front:
+        component: meya.input_image
+        properties:
+            text: >
+                Please take a picture of the front of your NRIC.
+                Make sure there's nothing else with text in the image.
+            output: ic_image
+            scope: flow
+    
+    ic_ocr_execute_front:
+        component: nric_ocr
+
+    ic_ocr_input_back:
+        component: meya.input_image
+        properties:
+            text: >
+                Now take a picture of the back of your NRIC.
+                Make sure there's nothing else with text in the image.
+            output: ic_image
+            scope: flow
+
+    ic_ocr_execute_back:
+        component: nric_ocr
+
+    ic_ocr_set_ic_type:
+        component: meya.set
+        properties:
+            key: ic_type
+            value: NRIC
+            scope: user
+
+    ic_ocr_check:
+        component: meya.conditional_equal
+        properties:
+            # TODO: Change this to proper check
+            value1: true
+            value2: true
+        transitions:
+            equal: check_info
+            notequal: ic_ocr_retry
+
+    ic_ocr_retry:
+        component: meya.text_suggestions
+        properties:
+            text: Sorry, we couldn't get everything we need from the picture
+            suggestions:
+                - Try again
+                - Key in manually
+        transitions:
+            Try again: ic_ocr_input_front
+            Key in manually: ic_keyboard_start
+
+    ic_keyboard_start:
+        component: meya.pass
+
+    ic_keyboard_type:
+        component: meya.text_suggestions
+        properties:
+            text: Are you using a passport or an NRIC?
+            suggestions:
+                - NRIC
+                - Passport
+            output: ic_type
+            scope: user
+
+    ic_keyboard_name:
+        component: meya.input_string
+        properties:
+            text: "First, what's your name, as it appears on your {{ user.ic_type }}?"
+            output: ic_name
+            scope: user
+
+    ic_keyboard_ic:
+        component: meya.input_string
+        properties:
+            text: "Next, what's your {{ user.ic_type }} number?"
+            output: ic_number
+            scope: user
+
+    ic_keyboard_issue_country_skip:
+        component: meya.conditional_equal
+        properties:
+            value1: '{{ user.ic_type }}'
+            value2: Passport
+        transitions:
+            equal: ic_keyboard_issue_country
+            notequal: check_info
+
+    ic_keyboard_issue_country:
+        component: meya.text_suggestions
+        properties:
+            text: >
+                Finally, the country of issue for your document
+                (if your country is not listed, you can type it below)
+            suggestions:
+                - Singapore
+                - China
+                - India
+                - United States of America
+            output: ic_country
+            scope: user
+
+    check_info:
+        component: meya.text_buttons
+        properties:
+            text: >
+                Okay, just to double check - you name is *{{ user.ic_name }}*,
+                your {{ user.ic_type }} number is *{{ user.ic_number }}* and 
+                you live at *{{ user.ic_address }}*.
+            buttons:
+                - text: Yup
+                  action: y
+                - text: No, let's try again
+                  action: fix
+        transitions:
+            fix: ic_keyboard_start
+            y: build_lpa
+
+    build_lpa:
+        component: lpa_form
+
+    locate_issuer:
+        component: meya.text_buttons
+        properties:
+            text: >
+                For the LPA to take effect, you need to have it certified by
+                a certificate issuer. I can help find one that is nearest to
+            buttons:
+                - text: My current location
+                  action: current
+                - text: My address
+                  action: address
+                - text: I'll find one myself
+                  action: list
+        transitions:
+            current: issuer_current_location
+            address: nearest_certifier
+            list: list_certifiers
+
+    issuer_current_location:
+        component: meya.input_location
+        properties:
+            text: Okay, send me your current location or enter it below
+            output: lpa_address
+
+    nearest_certifier:
+        component: meya.text
+        properties:
+            text: Placeholder
+        return: true
+
+    list_certifiers:
+        component: meya.text
+        properties:
+            text: >
+                Here's a list of certificate 
+        return: true

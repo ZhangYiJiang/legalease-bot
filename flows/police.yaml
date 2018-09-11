@@ -1,0 +1,57 @@
+triggers:
+  - type: meya.keyword
+    properties:
+        ignorecase: true
+        keyword: police
+states:
+    introduction:
+        component: meya.text_buttons
+        properties:
+            text: >
+                What do you need help with?
+            output: button_click
+            buttons:
+                - text: I want to find out more about the crime I am being charged with / investigated for.
+                  action: charged
+                - text: I want to create a summary to bring to a legal clinic / lawyer consultation.
+                  action: summary
+        transitions:
+            charged: charged_state
+            summary: summary_state
+    summary_state:
+        component: meya.text
+        properties:
+            text: >
+                What section of the Penal Code are you involved with?
+        transitions:
+            next: end
+    charged_state:
+        component: meya.text
+        properties:
+            text: >
+                What section are you being charged with / investigated for?
+    which_section_state:
+        component: meya.input_string
+        properties:
+            text: Which section?
+            output: section
+            scope: flow
+    section_answer_state:
+        component: meya.text
+        properties:
+            text: >
+                The elements of a crime under {{ flow.section }} of the Penal code are ___ and your available defences are
+        transitions:
+            next: end
+    legal_definition_state:
+        component: meya.text
+        properties:
+            text: >
+                I've detected a few words in the information above that have a special legal definition, would you like a list of their definitions?
+        transitions:
+            next: end
+    end:
+        component: meya.text
+        properties:
+            text: >
+                Thank you for using our service.
