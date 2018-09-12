@@ -15,11 +15,11 @@ class LpaForm(Component):
         # JSON schema: https://app.formapi.io/api/v1/templates/tpl_E3srgedRdHXXyAX2Gr/schema.json?pretty=1
         data = {
             "donar": {
-                # TODO: Change this to parsed birthday
-                'dob':           self.db.user.get('raw_birthday'),
+                'dob':           self.db.user.get('parsed_birthday'),
                 'id':            self.db.user.get('ic_number'),
                 'name':          self.db.user.get('ic_name'),
                 'issue_country': self.db.user.get('ic_country') or 'Singapore',
+                'address':       self.db.user.get('ic_address'),
                 'is_nric':       self.db.user.get('ic_type') == 'NRIC',
             },
             "donee": []

@@ -1,0 +1,30 @@
+triggers:
+  - type: meya.keyword
+    properties:
+        ignorecase: true
+        keyword: __clear
+states:
+    check:
+        component: meya.text_buttons
+        properties:
+            text: >
+                Are you really sure you want to clear all your data?
+                Don't press yes unless you know what you're doing!
+            buttons:
+                - text: "Yes"
+                  action: clear_data
+                - text: "No"
+                  action: exit
+    
+    clear_data:
+        component: clear_user_data
+    
+    done:
+        component: meya.text
+        properties:
+            text: User data cleared
+        return: true
+
+    exit:
+        component: meya.pass
+    

@@ -1,0 +1,61 @@
+triggers:
+  - type: meya.keyword
+    properties:
+        ignorecase: true
+        keyword: _lpa_locate
+states:
+    intro_1:
+        component: meya.text
+        properties:
+            text: >
+                For the LPA to take effect, you need to have it certified by
+                a certificate issuer. Lawyers, accredited doctors and
+                psychiatrists can do this.
+        delay:
+            relative: 3
+
+    intro_2:
+        component: meya.text
+        properties:
+            text: >
+                Many of these issuers charge fees ranging from $25 to $80,
+                with most charging $50 for the service.
+        delay:
+            relative: 3
+
+    locate_issuer:
+        component: meya.text_buttons
+        properties:
+            text: "I can help you find one that is nearest to..."
+            buttons:
+                - text: my address
+                  action: address
+                - text: my current location
+                  action: current
+                - text: I'll find one myself
+                  action: list
+        transitions:
+            current: issuer_current_location
+            address: nearest_certifier
+            list: list_certifiers
+
+    issuer_current_location:
+        component: meya.input_location
+        properties:
+            text: Okay, send me your current location or enter it below
+            output: lpa_address
+
+    nearest_certifier:
+        component: nearest_certification
+        return: true
+
+    list_certifiers:
+        component: meya.text_buttons
+        properties:
+            text: >
+                Sure. Here's a guide from the Office of Legal Guardians to finding
+                a suitable certificate issuer:
+            buttons:
+                - text: Visit Webpage
+                  url: "https://www.publicguardian.gov.sg/opg/pages/The-LPA-Where-to-find-a-Certificate-Issuer.aspx"
+        return: true

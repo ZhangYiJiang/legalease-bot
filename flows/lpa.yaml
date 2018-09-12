@@ -35,7 +35,7 @@ states:
                 one or more persons (*donee(s)*) to make decisions and act
                 on your behalf should you lose mental capacity one day.
         delay:
-            relative: 4
+            relative: 3
 
     intro_2:
         component: meya.text
@@ -50,18 +50,26 @@ states:
         component: meya.text
         properties:
             text: >
-                You'll need your NRIC or passport and your donee's NRIC or 
-                passport.
+                You'll need your NRIC or passport and your donee's NRIC or
+                passport. I'll wait for you to fetch it now 😊
         delay:
             relative: 3
 
     intro_4:
+        component: meya.text
+        properties:
+            text: >
+                I can help you draft out the form by filling in the blanks for
+                you, but you must get a legal practioner to help you certify it.
+        delay:
+            relative: 3
+
+    intro_5:
         component: meya.text_suggestions
         properties:
             text: >
                 I can help you draft out the form by filling in the blanks for
                 you, but you must get a legal practioner to help you certify it.
-
                 Don't worry - I'll help you find one once we finish the form.
             suggestions:
                 - Got it
@@ -96,7 +104,7 @@ states:
         properties:
             text: "Sorry, I don't understand what you've entered. Please try again"
             output: raw_birthday
-            scope: flow
+            scope: user
         transitions:
             next: age_check
 
@@ -220,15 +228,22 @@ states:
     ic_keyboard_name:
         component: meya.input_string
         properties:
-            text: "First, what's your name, as it appears on your {{ user.ic_type }}?"
+            text: "What's your name, as it appears on your {{ user.ic_type }}?"
             output: ic_name
             scope: user
 
     ic_keyboard_ic:
         component: meya.input_string
         properties:
-            text: "Next, what's your {{ user.ic_type }} number?"
+            text: "What's your {{ user.ic_type }} number?"
             output: ic_number
+            scope: user
+    
+    ic_keyboard_address:
+        component: meya.input_string
+        properties:
+            text: "What's your address, including the unit number and postal code?"
+            output: ic_address
             scope: user
 
     ic_keyboard_issue_country_skip:
@@ -259,7 +274,7 @@ states:
         properties:
             text: >
                 Okay, just to double check - you name is *{{ user.ic_name }}*,
-                your {{ user.ic_type }} number is *{{ user.ic_number }}* and 
+                your {{ user.ic_type }} number is *{{ user.ic_number }}* and
                 you live at *{{ user.ic_address }}*.
             buttons:
                 - text: Yup
@@ -272,40 +287,8 @@ states:
 
     build_lpa:
         component: lpa_form
-
+        delay:
+            relative: 3
+            
     locate_issuer:
-        component: meya.text_buttons
-        properties:
-            text: >
-                For the LPA to take effect, you need to have it certified by
-                a certificate issuer. I can help find one that is nearest to
-            buttons:
-                - text: My current location
-                  action: current
-                - text: My address
-                  action: address
-                - text: I'll find one myself
-                  action: list
-        transitions:
-            current: issuer_current_location
-            address: nearest_certifier
-            list: list_certifiers
-
-    issuer_current_location:
-        component: meya.input_location
-        properties:
-            text: Okay, send me your current location or enter it below
-            output: lpa_address
-
-    nearest_certifier:
-        component: meya.text
-        properties:
-            text: Placeholder
-        return: true
-
-    list_certifiers:
-        component: meya.text
-        properties:
-            text: >
-                Here's a list of certificate 
-        return: true
+        flow: lpa_locate
