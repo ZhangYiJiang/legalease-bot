@@ -1,0 +1,7 @@
+triggers:
+  - type: meya.catchall
+states:
+    redirect_to_help:
+        component: meya.text
+        properties:
+            text: Sorry, I don't understand that. Try typing "help" to see what I can do.

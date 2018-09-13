@@ -1,10 +1,15 @@
 triggers:
-  - type: meya.keyword
+  - type: meya.regex
     properties:
         ignorecase: true
-        keyword: thanks
+        pattern: th(an)?ks?(\s+you|\s+u)?.*
+        capture_text: false
 states:
-    first:
-        component: meya.text
+    reply:
+        component: meya.random_text
         properties:
-            text: No problem. Hope I have been helpful!
+            responses:
+                - No problem. Hope I have been helpful!
+                - You're welcome! 😃
+                - And thank *you* for using LegalEase!
+                - Awww, thanks!

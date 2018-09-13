@@ -27,7 +27,6 @@ class LpaForm(Component):
         
         submission = client.generate_pdf({
           "template_id": TEMPLATE_ID,
-          "test": True,
           "data": data,
         })
         

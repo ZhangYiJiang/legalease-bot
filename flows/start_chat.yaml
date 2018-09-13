@@ -1,0 +1,5 @@
+triggers:
+  - type: meya.start_chat
+states:
+    first:
+        flow: help

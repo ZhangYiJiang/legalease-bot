@@ -1,21 +1,41 @@
 triggers:
-  - type: meya.keyword
+  - type: meya.regex
     properties:
         ignorecase: true
-        keyword: help
+        pattern: help.*
+        capture_text: false
 states:
     first:
         component: meya.text
         properties:
             text: >
-                Hi, I am LegalEase, a bot that aims to aid you with legal help
+                Hi, I am LegalEase, a bot who can give you legal help
                 and point you in the right directions for further help.
-    
-    functionality:
+        delay:
+            relative: 1
+
+    functions_1:
+        component: meya.text
+        properties:
+            text: > 
+                I can help you fill up a Lasting Power of Attorney (LPA) form.
+                To do so, type "LPA".
+        delay:
+            relative: 1
+
+    functions_2:
+        component: meya.text
+        properties:
+            text: >
+                If you have a letter from the police, or need to see a lawyer
+                at a legal clinic, type "police".
+        delay:
+            relative: 1
+
+    function_select:
         component: meya.text_buttons
         properties:
-            text: Here are some of the things I can help you with.
-            output: button_click
+            text: "Please choose select one:"
             buttons:
                 - text: LPA
                   action: lpa
@@ -29,4 +49,4 @@ states:
         flow: lpa
 
     police:
-        police: police
+        flow: police
