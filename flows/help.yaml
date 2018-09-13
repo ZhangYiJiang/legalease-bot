@@ -35,7 +35,7 @@ states:
     function_select:
         component: meya.text_buttons
         properties:
-            text: "Please choose select one:"
+            text: "Please choose one:"
             buttons:
                 - text: LPA
                   action: lpa
