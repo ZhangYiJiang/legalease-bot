@@ -1,7 +1,3 @@
-triggers:
-  - type: meya.keyword
-    properties:
-        keyword: weather
 name: weather
 states:
     get_city:

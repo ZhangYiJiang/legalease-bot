@@ -1,0 +1,10 @@
+triggers:
+  - type: meya.keyword
+    properties:
+        ignorecase: true
+        keyword: thanks
+states:
+    first:
+        component: meya.text
+        properties:
+            text: No problem. Hope I have been helpful!

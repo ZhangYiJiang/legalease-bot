@@ -1,0 +1,32 @@
+triggers:
+  - type: meya.keyword
+    properties:
+        ignorecase: true
+        keyword: help
+states:
+    first:
+        component: meya.text
+        properties:
+            text: >
+                Hi, I am LegalEase, a bot that aims to aid you with legal help
+                and point you in the right directions for further help.
+    
+    functionality:
+        component: meya.text_buttons
+        properties:
+            text: Here are some of the things I can help you with.
+            output: button_click
+            buttons:
+                - text: LPA
+                  action: lpa
+                - text: Police
+                  action: police
+        transitions:
+            lpa: lpa
+            police: police
+
+    lpa:
+        flow: lpa
+
+    police:
+        police: police

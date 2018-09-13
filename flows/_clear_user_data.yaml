@@ -15,10 +15,13 @@ states:
                   action: clear_data
                 - text: "No"
                   action: exit
-    
+        transitions:
+            clear_data: clear_data
+            exit: exit
+
     clear_data:
         component: clear_user_data
-    
+
     done:
         component: meya.text
         properties:

@@ -1,9 +1,5 @@
 # This is the `tutorial` flow and is called by the `welcome` flow, but
 # can also be called directly by typing "tutorial"
-triggers:
-  - type: meya.keyword
-    properties:
-        keyword: tutorial
 states:
     check_name:
         component: meya.conditional_exists

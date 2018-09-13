@@ -36,13 +36,18 @@ states:
                   action: list
         transitions:
             current: issuer_current_location
-            address: nearest_certifier
+            address: geocode_address
             list: list_certifiers
+
+    geocode_address:
+        component: geocode_address
+        transitions:
+            next: nearest_certifier
 
     issuer_current_location:
         component: meya.input_location
         properties:
-            text: Okay, send me your current location or enter it below
+            text: Okay, send me your current location or enter it below.
             output: lpa_address
 
     nearest_certifier:

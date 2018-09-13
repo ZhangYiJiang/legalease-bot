@@ -3,6 +3,7 @@ from meya import Component
 from geopy.distance import distance
 from meya.cards import List, Element, Button
 import urllib
+import googlemaps
 
 all_providers = [
     ['Lee Siu Lin', 'Enlight Family Clinic', '226C, Ang Mo Kio Avenue 1 #01-649\nSingapore 563226', '64560022', 1.36714639333261, 103.839256956987],
@@ -49,6 +50,16 @@ def map_url(key, lat, lng):
     })
     
     return 'https://maps.googleapis.com/maps/api/staticmap?' + params
+    
+def place_photo_url(key, reference):
+    params = urllib.urlencode({
+        'key': key,
+        'photoreference': reference,
+        'maxwidth': 250,
+        'maxheight': 250,
+    })
+    
+    return 'https://maps.googleapis.com/maps/api/place/photo?' + params
 
 
 class NearestCertification(Component):
@@ -56,23 +67,48 @@ class NearestCertification(Component):
         lat = self.db.user.get('lat')
         lng = self.db.user.get('lng')
         map_key = self.db.bot.settings['google_cloud_key']
+        gmap_client = googlemaps.Client(key=map_key)
+        
+        # Look for nearest certificate issuers
         providers = nearest(lat, lng)
         
         elements = []
         for name, firm, address, tel, plat, plng in providers[:3]:
             d = distance((plat, plng), (lat, lng))
             
+            # Try to use Google Places API to find a photo of the place
+            image = None
+            try:
+                place_response = gmap_client.find_place(
+                    input=firm, 
+                    input_type='textquery', 
+                    fields=['icon', 'photos'], 
+                    location_bias='point:{},{}'.format(plat, plng),
+                )
+                
+                if place_response['candidates']:
+                    place = place_response['candidates'][0]
+                    
+                    if place['photos']:
+                        image = place_photo_url(map_key, place['photos'][0]['photo_reference'])
+                    elif place['logo']:
+                        image = place['logo']
+            except Exception as e:
+                self.log({ 'error': str(e), 'place': firm }, status='error', type='places_error')
+                    
             default_action = Button(url="https://www.google.com/maps/search/?api=1&query=" + urllib.quote_plus(address))
             call_btn = Button(text="Call", url="tel://" + tel)
             element = Element(title=name,
                               subtitle="{:.2f}km, {}".format(d.km, firm),
                               buttons=[call_btn],
-                              image_url=map_url(map_key, plat, plng),
+                              image_url=image,
                               default_action=default_action)
             
             elements.append(element)
         
+        show_all_btn = Button(text="View More", url="https://www.publicguardian.gov.sg/opg/Pages/The-LPA-Where-to-find-a-Certificate-Issuer.aspx")
         card = List(elements=elements,
+                    buttons=[show_all_btn],
                     top_element_style="compact")
         
         return self.respond(messages=[

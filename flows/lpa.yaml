@@ -31,7 +31,7 @@ states:
         component: meya.text
         properties:
             text: >
-                The LPA allows you (the *donar*) to voluntarily appoint
+                The LPA allows you (the *donor*) to voluntarily appoint
                 one or more persons (*donee(s)*) to make decisions and act
                 on your behalf should you lose mental capacity one day.
         delay:

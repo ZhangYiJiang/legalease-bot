@@ -17,10 +17,6 @@
 # ---------------------------------------------------------------------------
 #
 
-triggers:
-  - type: meya.keyword
-    properties:
-        keyword: start
 states:  # <-- a `flow` is a collection of states that run in order
     first:
         component: meya.text  # <-- this is a simple built-in component
